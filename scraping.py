@@ -15,9 +15,11 @@ def scrape_data_from_profile(username: str) -> pd.DataFrame:
     match = re.findall(summoner_string_pattern  , html)
     if match:
         regex_username = r'"internal_name":"([^"]+)"'
+        aram_check_position = r'"position":null'
         for summoner_string in match:
             current_string_name = re.search(regex_username, summoner_string)
-            if current_string_name.group(1) == username:
+            is_aram_game = re.search(aram_check_position, summoner_string)
+            if current_string_name.group(1) == username and not is_aram_game:
                 temp_dict = {}
                 pattern = r'"([^"]+)":"([^"]*)"|"([^"]+)":(\d+|\w+)'
                 matches = re.findall(pattern, summoner_string)
