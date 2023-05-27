@@ -22,7 +22,7 @@ def accuracy_fn(y_true, y_pred):
     return acc
 
 
-def train(model: LeagueModel, X: np.array, y: np.array, epochs: int, display=False):
+def train(model: LeagueModel, X: np.array, y: np.array, epochs: int, display=False) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(model.parameters())
     loss_fn = nn.BCEWithLogitsLoss()
