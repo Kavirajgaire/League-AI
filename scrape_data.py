@@ -2,6 +2,7 @@ import ssl
 import pandas as pd
 import re
 from urllib.request import urlopen
+from urllib.parse import quote
 
 context = ssl.create_default_context()
 context.check_hostname = False
@@ -9,7 +10,7 @@ context.verify_mode = ssl.CERT_NONE
 
 
 def scrape_data_from_profile(username: str) -> pd.DataFrame:
-    url = f"https://www.op.gg/summoners/na/{username}"
+    url = f"https://www.op.gg/summoners/na/{quote(username)}"
     page = urlopen(url, context=context)
     html = page.read().decode("utf-8")
 
@@ -50,18 +51,23 @@ def get_players(start: int, end: int) -> list:
     players = [j.replace(" ", "%20") for j in players]
     return players
 
+
 def df_to_stats(df: pd.DataFrame) -> list:
-    new_df = df[["total_damage_dealt_to_champions", "kill", "death", "assist", "gold_earned", "minion_kill", "op_score"]]
-    new_df = new_df.astype(int)
+    new_df = pd.DataFrame()
+    if not df.empty:
+        new_df = df[["total_damage_dealt_to_champions", "kill", "death", "assist", "gold_earned", "minion_kill", "op_score"]]
+        new_df = new_df.astype(int)
     stats = []
     for column in new_df.columns:
         column_average = new_df[column].mean()
         stats.append(column_average)
+    if not stats:
+        return [0, 0, 0, 0, 0, 0, 0]
     return stats
 
-def get_last_game_from_profile(username: str) -> pd.DataFrame:
 
-    url = f"https://www.op.gg/summoners/na/{username}"
+def get_last_game_from_profile(username: str) -> pd.DataFrame:
+    url = f"https://www.op.gg/summoners/na/{quote(username)}"
     page = urlopen(url, context=context)
     html = page.read().decode("utf-8")
 

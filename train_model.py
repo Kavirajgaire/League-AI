@@ -2,6 +2,7 @@ import model
 import scrape_data
 import os
 import pandas as pd
+import numpy as np
 
 
 def get_team_stats(team: list) -> list:
@@ -22,15 +23,22 @@ def create_data():
         team = scrape_data.get_last_game_from_profile(i.lower())
         team_stats = get_team_stats(team[:-1])
         team_df = pd.DataFrame(team_stats).T
-        team_df[36] = team[-1]
         if len(team_stats) != 0:
+            team_df[36] = team[-1]
             team_df.columns = df.columns
             df = pd.concat([df, team_df], ignore_index=True)
-        if count % 10 == 0:
+        if count % 5 == 0:
             print(count)
     df.to_csv("training_data.csv")
     print("complete")
 
+def start_training():
+    df = pd.read_csv('sample_data.csv')
+    X = df.iloc[:, 1:-1].values
+    y = df.iloc[:, -1].values
+    leagueAi = model.LeagueModel()
+    model.train(leagueAi, X, y, 10000, True)
 
 if __name__ == "__main__":
-    create_data()
+    #create_data()
+    start_training()
