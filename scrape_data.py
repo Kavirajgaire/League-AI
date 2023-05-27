@@ -10,7 +10,7 @@ context.verify_mode = ssl.CERT_NONE
 
 def scrape_data_from_profile(username: str) -> pd.DataFrame:
     url = f"https://www.op.gg/summoners/na/{username}"
-    page = urlopen(url)
+    page = urlopen(url, context=context)
     html = page.read().decode("utf-8")
 
     final_dataframe = pd.DataFrame()
@@ -38,10 +38,10 @@ def scrape_data_from_profile(username: str) -> pd.DataFrame:
     return final_dataframe
 
 
-def get_players(pages: int) -> list:
+def get_players(start: int, end: int) -> list:
     url = f"https://www.op.gg/leaderboards/tier?page="
     players = []
-    for i in range(1, pages + 1):
+    for i in range(start, end + 1):
         page = urlopen(url + str(i), context=context)
         html = page.read().decode("utf-8")
         summoner_string_pattern = r'<strong class="summoner-name">(.*?)</strong>'
@@ -58,6 +58,35 @@ def df_to_stats(df: pd.DataFrame) -> list:
         column_average = new_df[column].mean()
         stats.append(column_average)
     return stats
+
+def get_last_game_from_profile(username: str) -> pd.DataFrame:
+
+    url = f"https://www.op.gg/summoners/na/{username}"
+    page = urlopen(url, context=context)
+    html = page.read().decode("utf-8")
+
+    summoner_string_pattern = r'"summoner":{"id":\d+.*?"tier_image_url"'
+    match = re.findall(summoner_string_pattern, html)
+    if match:
+        num_users_data = 0
+        aram_check_position = r'"position":null'
+        users = []
+        result = []
+        for summoner_string in match:
+            is_aram_game = re.search(aram_check_position, summoner_string)
+            if not is_aram_game:
+                username_pattern = r'"internal_name":"([^"]+)"'
+                obtained_name = re.search(username_pattern, summoner_string)
+                is_win = re.findall(r'WIN', summoner_string)
+                users.append(obtained_name.group(1))
+                if is_win:
+                    result.append(1)
+                else:
+                    result.append(0)
+                num_users_data += 1
+            if num_users_data == 10:
+                return [user for i, user in enumerate(users) if result[i] == result[users.index(username.replace("%20", ""))]] + [result[users.index(username.replace("%20", ""))], ]
+    return []
 
 
 if __name__ == "__main__":
