@@ -21,10 +21,12 @@ def scrape_data_from_profile(username: str) -> pd.DataFrame:
     if match:
         regex_username = r'"internal_name":"([^"]+)"'
         aram_check_position = r'"position":null'
+        remake_check = r'"result":"UNKNOWN"'
         for summoner_string in match:
             current_string_name = re.search(regex_username, summoner_string)
             is_aram_game = re.search(aram_check_position, summoner_string)
-            if current_string_name is not None and current_string_name.group(1) == username and not is_aram_game:
+            is_remake = re.search(remake_check, summoner_string)
+            if current_string_name is not None and current_string_name.group(1) == username and not is_aram_game and not is_remake:
                 temp_dict = {}
                 pattern = r'"([^"]+)":"([^"]*)"|"([^"]+)":(\d+|\w+)'
                 matches = re.findall(pattern, summoner_string)
@@ -76,11 +78,13 @@ def get_last_game_from_profile(username: str) -> pd.DataFrame:
     if match:
         num_users_data = 0
         aram_check_position = r'"position":null'
+        remake_check = r'"result":"UNKNOWN"'
         users = []
         result = []
         for summoner_string in match:
+            is_remake = re.search(remake_check, summoner_string)
             is_aram_game = re.search(aram_check_position, summoner_string)
-            if not is_aram_game:
+            if not is_aram_game and not is_remake:
                 username_pattern = r'"internal_name":"([^"]+)"'
                 obtained_name = re.search(username_pattern, summoner_string)
                 is_win = re.findall(r'WIN', summoner_string)
