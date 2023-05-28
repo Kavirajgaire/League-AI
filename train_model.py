@@ -29,6 +29,8 @@ def create_data():
             df = pd.concat([df, team_df], ignore_index=True)
         if count % 5 == 0:
             print(count)
+        if count % 50 == 0:
+            df.to_csv("training_data.csv")
     df.to_csv("training_data.csv")
     print("complete")
 
