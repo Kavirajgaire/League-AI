@@ -102,7 +102,7 @@ def get_last_game_from_profile(username: str) -> pd.DataFrame:
                     result.append(0)
                 num_users_data += 1
             if num_users_data == 10:
-                return [user for i, user in enumerate(users) if result[i] == result[users.index(username.replace(" ", ""))]] + [result[users.index(username.replace(" ", ""))], ]
+                return [user for i, user in enumerate(users) if result[i] == result[users.index(username)]] + [result[users.index(username)], ]
     return []
 
 
