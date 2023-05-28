@@ -3,23 +3,30 @@ import pandas as pd
 import re
 from urllib.request import urlopen
 from urllib.parse import quote
+import unicodedata
 
 context = ssl.create_default_context()
 context.check_hostname = False
 context.verify_mode = ssl.CERT_NONE
+
+def remove_special_chars(text):
+    normalized_text = unicodedata.normalize('NFKD', text)
+    cleaned_text = ''.join(c for c in normalized_text if not unicodedata.combining(c))
+    text_without_special_chars = ''.join(c for c in cleaned_text if not unicodedata.category(c).startswith('M'))
+    return text_without_special_chars
 
 
 def scrape_data_from_profile(username: str) -> pd.DataFrame:
     url = f"https://www.op.gg/summoners/na/{quote(username)}"
     page = urlopen(url, context=context)
     html = page.read().decode("utf-8")
-
+    #username = remove_special_chars(username)
     final_dataframe = pd.DataFrame()
 
     summoner_string_pattern = r'"summoner":{"id":\d+.*?"tier_image_url"'
     match = re.findall(summoner_string_pattern  , html)
     if match:
-        regex_username = r'"internal_name":"([^"]+)"'
+        regex_username = r'"name":"([^"]+?)"'
         aram_check_position = r'"position":null'
         remake_check = r'"result":"UNKNOWN"'
         for summoner_string in match:
@@ -72,7 +79,7 @@ def get_last_game_from_profile(username: str) -> pd.DataFrame:
     url = f"https://www.op.gg/summoners/na/{quote(username)}"
     page = urlopen(url, context=context)
     html = page.read().decode("utf-8")
-
+    #username = remove_special_chars(username)
     summoner_string_pattern = r'"summoner":{"id":\d+.*?"tier_image_url"'
     match = re.findall(summoner_string_pattern, html)
     if match:
@@ -85,8 +92,8 @@ def get_last_game_from_profile(username: str) -> pd.DataFrame:
             is_remake = re.search(remake_check, summoner_string)
             is_aram_game = re.search(aram_check_position, summoner_string)
             if not is_aram_game and not is_remake:
-                username_pattern = r'"internal_name":"([^"]+)"'
-                obtained_name = re.search(username_pattern, summoner_string)
+                username_pattern = r'"name":"([^"]+?)"'
+                obtained_name = re.search(username_pattern, summoner_string, re.IGNORECASE)
                 is_win = re.findall(r'WIN', summoner_string)
                 users.append(obtained_name.group(1))
                 if is_win:
