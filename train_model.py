@@ -18,8 +18,7 @@ def create_data():
         return
     columns = [str(i) for i in range(7*5 + 1)]
     df = pd.DataFrame(columns=columns)
-    #player_data = scrape_data.get_players(1, 5)
-    player_data = ["AHº",]
+    player_data = scrape_data.get_players(1, 5)
     for count, i in enumerate(player_data):
         team = scrape_data.get_last_game_from_profile(i)
         team_stats = get_team_stats(team[:-1])
