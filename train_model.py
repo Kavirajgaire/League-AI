@@ -18,7 +18,7 @@ def create_data():
         return
     columns = [str(i) for i in range(7*5 + 1)]
     df = pd.DataFrame(columns=columns)
-    player_data = scrape_data.get_players(1, 1)
+    player_data = scrape_data.get_players(1, 1)[:10]
     for count, i in enumerate(player_data):
         team = scrape_data.get_last_game_from_profile(i.lower())
         team_stats = get_team_stats(team[:-1])
@@ -40,5 +40,5 @@ def start_training():
     model.train(leagueAi, X, y, 10000, True)
 
 if __name__ == "__main__":
-    #create_data()
-    start_training()
+    create_data()
+    #start_training()

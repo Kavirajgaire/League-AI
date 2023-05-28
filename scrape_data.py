@@ -48,7 +48,7 @@ def get_players(start: int, end: int) -> list:
         summoner_string_pattern = r'<strong class="summoner-name">(.*?)</strong>'
         match = re.findall(summoner_string_pattern, html)
         players.extend(match)
-    players = [j.replace(" ", "%20") for j in players]
+    #players = [j.replace(" ", "%20") for j in players]
     return players
 
 
@@ -91,7 +91,7 @@ def get_last_game_from_profile(username: str) -> pd.DataFrame:
                     result.append(0)
                 num_users_data += 1
             if num_users_data == 10:
-                return [user for i, user in enumerate(users) if result[i] == result[users.index(username.replace("%20", ""))]] + [result[users.index(username.replace("%20", ""))], ]
+                return [user for i, user in enumerate(users) if result[i] == result[users.index(username.replace(" ", ""))]] + [result[users.index(username.replace(" ", ""))], ]
     return []
 
 
