@@ -1,5 +1,5 @@
 # League-AI
-
+![League AI](https://github.com/lawrencef2/test-image/blob/main/leagueai.png?raw=true)
 
 # Description
  This project uses PyTorch to create and train a neural network that predicts the results of League of Legends games
